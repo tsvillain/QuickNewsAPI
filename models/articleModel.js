@@ -19,6 +19,10 @@ const articleSchema = new mongoose.Schema({
         type: Date,
         default: Date.now(),
     },
+    lastEditiedOn: {
+        type: Date,
+        default: Date.now(),
+    },
     tags: [
         {
             type: String,

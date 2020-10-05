@@ -5,9 +5,10 @@ exports.createUser = async (req, res) => {
 
     const { firstName, lastName, username, email } = req.body;
     try {
-        if (!email || !firstName || !lastName || !username) {
-            throw new Error('All Field are mandatory.');
-        }
+        if (!email) return next(new Error('Email is Required'));
+        if (!firstName) return next(new Error('First Name is Required'));
+        if (!lastName) return next(new Error('Last Name is Required'));
+        if (!username) return next(new Error('Username is Required'));
 
         //check if user email already exist
         const emailExist = await User.findOne({ email: email });
@@ -36,7 +37,7 @@ exports.createUser = async (req, res) => {
 }
 
 
-exports.getAllUser = async (req, res) => {
+exports.getAllUser = async (_, res) => {
     try {
         const user = await User.find();
         res.status(200).json({
