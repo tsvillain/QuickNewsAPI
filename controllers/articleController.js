@@ -73,7 +73,7 @@ exports.updateArticle = async (req, res) => {
             {
                 "authorId": req.params.userID,
                 "_id": req.params.articleID,
-            }, filterBody, { lastEditiedOn: Date.now() }, {
+            }, filterBody, {
             new: true,
         });
         res.status(200).json({

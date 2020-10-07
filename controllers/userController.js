@@ -29,7 +29,7 @@ exports.createUser = async (req, res) => {
             username: username,
             email: email,
             password: hashedPass,
-        }, { password: 0 });
+        });
 
         res.status(200).json({
             status: 'success',
@@ -96,7 +96,7 @@ exports.updateUser = async (req, res) => {
             throw new Error('User must have a id');
         }
         const filterBody = filter.filterObj(req.body, 'firstName', 'lastName', 'username', 'isWritter');
-        const updatedUser = await User.findByIdAndUpdate(req.params.id, filterBody, { new: true }, { password: 0 });
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, filterBody, { new: true });
         res.status(200).json({
             status: 'success',
             data: updatedUser
