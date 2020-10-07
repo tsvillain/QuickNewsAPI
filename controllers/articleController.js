@@ -25,7 +25,7 @@ exports.createArticle = async (req, res, next) => {
 
         res.status(200).json({
             status: 'success',
-            message: article,
+            data: article,
         });
 
 
@@ -42,11 +42,19 @@ exports.deleteArticle = async (req, res) => {
     try {
         if (!req.params.articleID) throw new Error('ArticleID is missing');
         if (!req.params.userID) throw new Error('UserID is missing');
-        const deletedArticle = await Article.findOneAndDelete({ "authorId": req.params.userID }, { "_id": req.params.articleID });
-        res.status(200).json({
-            status: 'success',
-            message: deletedArticle,
-        });
+        const findArticle = await Article.findById(req.params.articleID);
+        if (findArticle.authorId == req.params.userID) {
+            const deletedArticle = await Article.findByIdAndDelete(req.params.articleID);
+            res.status(200).json({
+                status: 'success',
+                data: deletedArticle,
+            });
+        } else {
+            res.status(400).json({
+                status: 'fail',
+                message: "You are not authorized to delete.",
+            });
+        }
     } catch (error) {
         res.status(400).json({
             status: 'fail',
@@ -60,17 +68,17 @@ exports.updateArticle = async (req, res) => {
     try {
         if (!req.params.articleID) throw new Error('ArticleID is missing');
         if (!req.params.userID) throw new Error('UserID is missing');
-        const filterBody = filter.filterObj(req.body, 'title', 'content', 'lastEditedOn', 'tags', 'category', 'posterURL');
+        const filterBody = filter.filterObj(req.body, 'title', 'content', 'tags', 'category', 'posterURL');
         const updatedArticle = await Article.findOneAndUpdate(
             {
                 "authorId": req.params.userID,
                 "_id": req.params.articleID,
-            }, filterBody, {
+            }, filterBody, { lastEditiedOn: Date.now() }, {
             new: true,
         });
         res.status(200).json({
             status: 'success',
-            message: updatedArticle,
+            data: updatedArticle,
         });
     } catch (error) {
         res.status(400).json({
@@ -85,7 +93,7 @@ exports.allArticle = async (_, res) => {
         const articles = await Article.find();
         res.status(200).json({
             status: 'success',
-            message: articles,
+            data: articles,
         });
     } catch (error) {
         res.status(400).json({
@@ -101,7 +109,7 @@ exports.singleUserArticle = async (req, res) => {
         const articles = await Article.find({ 'authorId': req.params.userID });
         res.status(200).json({
             status: 'success',
-            message: articles,
+            data: articles,
         });
     } catch (error) {
         res.status(400).json({
@@ -117,7 +125,7 @@ exports.singleArticle = async (req, res) => {
         const article = await Article.findById(req.params.articleID);
         res.status(200).json({
             status: 'success',
-            message: article,
+            data: article,
         });
     } catch (error) {
         res.status(400).json({
@@ -126,3 +134,25 @@ exports.singleArticle = async (req, res) => {
         });
     }
 };
+
+exports.likeArticle = async (req, res) => {
+
+    try {
+        if (!req.body.userID) throw new Error("userID is missing");
+        if (!req.body.articleID) throw new Error("articleID is missing");
+
+        await Article.findByIdAndUpdate(req.body.articleID, { $push: { likes: req.body.userID } });
+
+        const user = User.findByIdAndUpdate(req.body.userID, { $push: { likedArticles: req.body.articleID } });
+
+        res.status(200).json({
+            status: 'success',
+            data: user,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message,
+        });
+    }
+}
