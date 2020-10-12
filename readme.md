@@ -1,6 +1,6 @@
 # Quick News API
 
-Detailed Documentation: (Here)[https://documenter.getpostman.com/view/7006888/TVRj79Ls]
+Detailed Documentation: [Here](https://documenter.getpostman.com/view/7006888/TVRj79Ls)
 
 ---
 ## Requirements
