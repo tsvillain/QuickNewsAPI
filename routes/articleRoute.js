@@ -3,7 +3,6 @@ const articleController = require('../controllers/articleController');
 const router = express.Router();
 const authVerify = require('../middleware/authToken');
 
-
 router.route('/').get(authVerify, articleController.allArticle);
 router.route('/create/:userID').post(authVerify, articleController.createArticle);
 router.route('/like').post(authVerify, articleController.likeArticle);

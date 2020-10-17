@@ -6,6 +6,9 @@ exports.createArticle = async (req, res, next) => {
     const { title, content, authorId, tags, category } = req.body;
     try {
         if (!req.params.userID) throw new Error('userID is missing');
+        if (req.params.userID != req.authData["_id"]) {
+            throw new Error('User Authentication Failed. Token Tempered');
+        }
 
         const user = await User.findById(req.params.userID);
 
@@ -42,6 +45,10 @@ exports.deleteArticle = async (req, res) => {
     try {
         if (!req.params.articleID) throw new Error('ArticleID is missing');
         if (!req.params.userID) throw new Error('UserID is missing');
+        if (req.params.userID != req.authData["_id"]) {
+            throw new Error('User Authentication Failed. Token Tempered');
+        }
+
         const findArticle = await Article.findById(req.params.articleID);
         if (findArticle.authorId == req.params.userID) {
             const deletedArticle = await Article.findByIdAndDelete(req.params.articleID);
@@ -68,6 +75,9 @@ exports.updateArticle = async (req, res) => {
     try {
         if (!req.params.articleID) throw new Error('ArticleID is missing');
         if (!req.params.userID) throw new Error('UserID is missing');
+        if (req.params.userID != req.authData["_id"]) {
+            throw new Error('User Authentication Failed. Token Tempered');
+        }
         const filterBody = filter.filterObj(req.body, 'title', 'content', 'tags', 'category', 'posterURL');
         const updatedArticle = await Article.findOneAndUpdate(
             {

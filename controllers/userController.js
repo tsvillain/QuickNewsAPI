@@ -4,7 +4,6 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const salt = process.env.SALT || "gN9bPF4KbB";
 
-
 exports.createUser = async (req, res) => {
 
     const { firstName, lastName, username, email, password } = req.body;
@@ -100,6 +99,9 @@ exports.updateUser = async (req, res) => {
     try {
         if (!req.params.id) {
             throw new Error('User must have a id');
+        }
+        if (req.params.id != req.authData["_id"]) {
+            throw new Error('User Authentication Failed. Token Tempered');
         }
         const filterBody = filter.filterObj(req.body, 'firstName', 'lastName', 'username', 'isWritter');
         const updatedUser = await User.findByIdAndUpdate(req.params.id, filterBody, { new: true });
