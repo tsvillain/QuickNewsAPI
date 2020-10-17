@@ -1,8 +1,8 @@
 const User = require('../models/userModel');
 const filter = require('../utils/filter');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const salt = process.env.SALT || "gN9bPF4KbB";
-
 
 exports.createUser = async (req, res) => {
 
@@ -48,9 +48,14 @@ exports.loginUser = async (req, res) => {
     try {
         const hashedPass = crypto.pbkdf2Sync(password, salt, 8, 12, "sha256");
         const user = await User.findOne({ username: username, password: hashedPass }, { password: 0 });
+
+        //Create and assing a token
+        const token = jwt.sign({ _id: user._id }, process.env.ACCESS_TOKEN_SECRET);
+
         res.status(200).json({
             status: 'success',
-            data: user
+            data: user,
+            token: token
         });
     } catch (error) {
         res.status(400).json({
@@ -94,6 +99,9 @@ exports.updateUser = async (req, res) => {
     try {
         if (!req.params.id) {
             throw new Error('User must have a id');
+        }
+        if (req.params.id != req.authData["_id"]) {
+            throw new Error('User Authentication Failed. Token Tempered');
         }
         const filterBody = filter.filterObj(req.body, 'firstName', 'lastName', 'username', 'isWritter');
         const updatedUser = await User.findByIdAndUpdate(req.params.id, filterBody, { new: true });
