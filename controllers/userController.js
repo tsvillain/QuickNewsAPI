@@ -2,7 +2,25 @@ const User = require('../models/userModel');
 const filter = require('../utils/filter');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 const salt = process.env.SALT || "gN9bPF4KbB";
+
+
+
+exports.uploadProfile = async (req, res) => {
+    try {
+        res.status(200).json({
+            status: 'success',
+            message: `${req.file.destination}${req.file.filename}`,
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message,
+        });
+
+    }
+};
 
 exports.createUser = async (req, res) => {
 
