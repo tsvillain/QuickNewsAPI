@@ -1,9 +1,32 @@
 const Article = require('../models/articleModel');
 const User = require('../models/userModel');
 const filter = require('../utils/filter');
+// const multer = require('multer');
 
-exports.createArticle = async (req, res, next) => {
+// //image upload
+// var storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'uploads/img/article')
+//     },
+//     filename: (req, file, cb) => {
+//         const ext = file.mimetype.split('/')[1];
+//         cb(null, `/${req.body.email}.${ext}`)
+//     }
+// });
+
+// var upload = multer({ storage: storage });
+
+// //controllers
+// exports.uploadImage = upload.single('coverImage');
+
+exports.createArticle = async (req, res) => {
+    // var imagePath;
     const { title, content, authorId, tags, category } = req.body;
+    
+    // if ( req.file){
+    //     imagePath = `${req.file.destination}${req.file.filename}`;
+    // }
+
     try {
         if (!req.params.userID) throw new Error('userID is missing');
         if (req.params.userID != req.authData["_id"]) {
@@ -24,6 +47,7 @@ exports.createArticle = async (req, res, next) => {
             authorId: authorId,
             tags: tags,
             category: category,
+            coverImage: imagePath,
         });
 
         res.status(200).json({

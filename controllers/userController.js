@@ -2,29 +2,32 @@ const User = require('../models/userModel');
 const filter = require('../utils/filter');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
 const salt = process.env.SALT || "gN9bPF4KbB";
+const multer = require('multer');
 
-
-
-exports.uploadProfile = async (req, res) => {
-    try {
-        res.status(200).json({
-            status: 'success',
-            message: `${req.file.destination}${req.file.filename}`,
-        });
-    } catch (error) {
-        res.status(400).json({
-            status: 'fail',
-            message: error.message,
-        });
-
+//image upload
+var storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/img/users')
+    },
+    filename: (req, file, cb) => {
+        const ext = file.mimetype.split('/')[1];
+        cb(null, `/${req.body.email}.${ext}`)
     }
-};
+});
+
+var upload = multer({ storage: storage });
+
+//controllers
+exports.uploadProfile = upload.single('profilePic');
 
 exports.createUser = async (req, res) => {
-
+    var profilePath;
     const { firstName, lastName, username, email, password } = req.body;
+    if (req.file) {
+        profilePath = `${req.file.destination}${req.file.filename}`;
+    }
+
     try {
         if (!email) return next(new Error('Email is Required'));
         if (!firstName) return next(new Error('First Name is Required'));
@@ -47,6 +50,7 @@ exports.createUser = async (req, res) => {
             username: username,
             email: email,
             password: hashedPass,
+            profilePicture: profilePath,
         });
 
         res.status(200).json({

@@ -11,6 +11,10 @@ const articleSchema = new mongoose.Schema({
         required: [true, 'Article must have Content.'],
         maxlength: 500,
     },
+    coverImage: {
+        type: String,
+        default: 'DefaultUser.png',
+    },
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Author'
